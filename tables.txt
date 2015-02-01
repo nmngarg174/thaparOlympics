@@ -1,0 +1,140 @@
+
+
+create table sport(
+sport_id number(10),
+sport_name varchar(20),
+constraint sport_id_pk primary key(sport_id)
+);
+
+create table team_master(
+team_id number(10),
+team_name varchar(20),
+team_pass varchar(20),
+constraint team_id_pk primary key(team_id)
+);
+
+
+create table department(
+dept_id number(10),
+dept_name varchar(20),
+team_id number(10),
+constraint department_team_id_fk foreign key (team_id) references team_master(team_id) on delete set null,
+constraint dept_id_pk primary key (dept_id)
+);
+
+
+create table team(
+team_id number(10),
+sport_id number(10),
+captain_id number(10),
+faculty_id1 number(10),
+faculty_id2 number(10),
+vc_id1 number(10),
+vc_id2 number(10),
+constraint team_team_id_fk foreign key(team_id) references team_master(team_id) on delete cascade,
+constraint team_sport_id_fk foreign key(sport_id) references sport(sport_id) on delete cascade,
+constraint team_captain_id_fk foreign key(captain_id) references member_master(member_id) on delete set null,
+constraint team_vc_id1_fk foreign key(vc_id1) references member_master(member_id) on delete set null,
+constraint team_vc_id2_fk foreign key(vc_id2) references member_master(member_id) on delete set null,
+constraint team_faculty_id1_fk foreign key(faculty_id1) references member_master(member_id) on delete set null,
+constraint team_faculty_id2_fk foreign key(faculty_id2) references member_master(member_id) on delete set null
+);
+
+create table member_master(
+member_id number(10),
+roll_no number(10) default null,
+faculty_id number(10) default null,
+fname varchar(50),
+lname varchar(50),
+gender varchar(2),
+email varchar(20),
+ph_no number(10),
+dept_id number(10),
+constraint member_id_pk primary key(member_id),
+constraint faculty_id_unique unique(faculty_id),
+constraint roll_no_unique unique(roll_no),
+constraint member_master_dept_id_fk foreign key(dept_id) references department(dept_id) on delete set null
+);
+
+
+
+create table fixture(
+sport_id number(10),
+match_id number(10),
+team_id1 number(10),
+team_id2 number(10),
+status varchar(10),
+match_date date,
+winner number(10) default null,
+constraint match_id_pk primary key(match_id) ,
+constraint fixture_sport_id_fk foreign key(sport_id) references sport(sport_id) on delete cascade,
+constraint fixture_team_id1_fk foreign key(team_id1) references team_master(team_id) on delete cascade,
+constraint fixture_team_id2_fk foreign key(team_id2) references team_master(team_id) on delete cascade,
+constraint fixture_status check(status in('prelims','semis','finals'))
+);
+
+
+
+create table athletics(
+member_id number(10),
+sport_id number(10),
+time date,
+distance number(10),
+status varchar(1),
+constraint athletics_member_id_fk foreign key(member_id) references member_master(roll_no) on delete cascade,
+constraint athletics_sport_id_fk foreign key(sport_id) references sport(sport_id) on delete cascade,
+constraint athletics_status check(status in('heat','finals'))
+);
+
+create table member_sport(
+member_id number(10),
+sport_id number(10),
+constraint member_sport_member_id_fk foreign key(member_id) references member_master(member_id) on delete cascade,
+constraint member_sport_sport_id_fk foreign key(sport_id) references sport(sport_id) on delete set null
+);
+
+create table score(
+match_id number(10),
+team_id number(10),
+score1 number(10),
+score2 number(10),
+score3 number(10),
+score4 number(10),
+score5 number(10),
+constraint score_match_id_fk foreign key(match_id) references fixture(match_id) on delete cascade,
+constraint score_team_id_fk foreign key(team_id) references team_master(team_id) on delete cascade
+);
+
+create table match_point(
+sport_id number(10),
+team_id number(10),
+matches_played number(10),
+matches_won number(10),
+points number(10),
+nrr number(10),
+draw number(10),
+score_a number(10),
+score_f number(10),
+winpc number(10),
+constraint match_point_sport_id_fk foreign key(sport_id) references sport(sport_id) on delete cascade,
+constraint match_point_team_id_fk foreign key(team_id) references team_master(team_id) on delete set null
+);
+
+
+create table overall_point(
+team_id number(10),
+points number(10),
+constraint overall_point_team_id_fk foreign key(team_id) references team_master(team_id) on delete set null
+);
+
+desc sport;
+desc team_master;
+desc department;
+desc member_sport;
+desc member_master;
+desc team;
+desc fixture;
+desc match_point;
+desc athletics;
+desc overall_point;
+desc score;

@@ -1,0 +1,226 @@
+declare
+a member_master.member_id%type;
+b member_master.roll_no%type;
+c member_master.faculty_id%type;
+d member_master.fname%type;
+e member_master.lname%type;
+f member_master.gender%type;
+g member_master.email%type;
+h member_master.ph_no%type;
+i member_master.dept_id%type;
+j sport.sport_name%type;
+k sport.sport_name%type;
+l number;
+m number;
+begin
+
+b:=&roll_no;
+c:=&faculty_number;
+d:='&First_Name';
+e:='&Last_name';
+f:='&Gender';
+g:='&email';
+h:=&phone_no;
+i:=&dept_id;
+j:='&sport_name1';
+k:='&sport_name2';
+if c IS NULL then
+   a:=substr(d,0,1)||substr(e,0,1)||'_'||b;
+elsif b IS NULL then
+   a:=substr(d,0,1)||substr(e,0,1)||'_'||c;
+end if;
+select sport_id into l from sport where sport_name=j;
+select sport_id into m from sport where sport_name=k;
+insertMember(a,b,c,d,e,f,g,h,i,l,m);
+end;
+----------------------------------------
+
+create or replace procedure insertMember(a in varchar,b in number,c in number,d in varchar,e in varchar,f in varchar,g in varchar,h in number,i in number,l in number,m in number)is 
+
+begin 
+
+insert into member_master values (a,b,c,d,e,f,g,h,i);  
+insert into member_sport values(a,l); 
+insert into member_sport values(a,m); 
+
+end;  
+-----------------------------------------
+-----------------------------------------
+
+
+//fixture enter (winner is null )
+declare
+a fixture.sport_id%type;
+c fixture.team_id1%type;
+d fixture.team_id2%type;
+e fixture.status%type;
+f varchar(20);
+begin
+a:=&sport_id;
+c:=&team_id1;
+d:=&team_id2;
+e:='&status';
+f:='&match_date';
+fix(a,c,d,e,f);
+end;
+-----------------------------------------
+create sequence fixSeq increment by 1 start with 100; 
+
+create or replace trigger insertFixture before insert on fixture for each row 
+
+begin 
+select fixSeq.nextval into :new.match_id from dual; 
+ 
+end;
+-----------------------------------------
+create or replace procedure fix(a in number,c in number,d in number,e in varchar,f in varchar) is
+begin
+insert into fixture(sport_id,team_id1,team_id2,status,match_date,winner) values(a,c,d,e,to_date(f,'dd/mm/yyyy'),NULL);
+
+
+end;
+----------------------------------------
+-----------------------------------------
+
+
+//scoress
+
+declare
+a score.match_id%type;
+b score.team_id%type;
+c score.team_id%type;
+d score.score1%type;
+e score.score2%type;
+f score.score3%type;
+g score.score4%type;
+h score.score5%type;
+i score.score1%type;
+j score.score2%type;
+k score.score3%type;
+l score.score4%type;
+m score.score5%type;
+n fixture.winner%type;
+o sport.sport_id%type;
+p fixture.status%type;
+begin
+b:=&team_id1;
+c:=&team_id2;
+d:=&score1t1;
+e:=&score2t1;
+f:=&score3t1;
+g:=&score4t1;
+h:=&score5t1;
+i:=&score1t2;
+j:=&score2t2;
+k:=&score3t3;
+l:=&score4t4;
+m:=&score5t5;
+n:=&winner;
+o:=&sport_id;
+p:='&status';
+select match_id into a from fixture where sport_id=o and team_id1=b and team_id2=c and status=p;
+sco(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p);
+end;
+-----------------------------------
+
+create or replace procedure sco(a in number,b in number, c in number, d in number, e in number,f in number, g in number,h in number,i in number, j in number,k in number,l in number,m in number,n in number,o in number,p in varchar) is
+rb1  score.score1%type;
+ra1  score.score1%type;
+ob1  score.score1%type;
+oa1  score.score1%type;
+begin
+if o=1 then
+update match_point set score_f=score_f+d where team_id=b and sport_id=o;
+update match_point set score_f=score_f+i where team_id=c and sport_id=o;
+update match_point set score_a=score_a+i where team_id=b and sport_id=o;
+update match_point set score_a=score_a+d where team_id=c and sport_id=o;
+else
+update match_point set score_f=score_f+nvl(d,0)+nvl(e,0)+nvl(f,0)+nvl(g,0)+nvl(h,0) where team_id=b and sport_id=o;
+update match_point set score_f=score_f+nvl(i,0)+nvl(j,0)+nvl(k,0)+nvl(l,0)+nvl(m,0) where team_id=c and sport_id=o;
+update match_point set score_a=score_a+nvl(i,0)+nvl(j,0)+nvl(k,0)+nvl(l,0)+nvl(m,0) where team_id=b and sport_id=o;
+update match_point set score_a=score_a+nvl(d,0)+nvl(e,0)+nvl(f,0)+nvl(g,0)+nvl(h,0) where team_id=c and sport_id=o;
+end if;
+
+insert into score values(a,b,d,e,f,g,h);
+insert into score values(a,c,i,j,k,l,m);
+update fixture set winner=n where sport_id=o and status=p and ((team_id1=b and team_id2=c) or(team_id1=c and team_id2=b));
+if n=b or n=c then
+update match_point set points=points+4 where team_id=n and sport_id=o;
+update match_point set matches_won=matches_won+1 where team_id=n and sport_id=o;
+else
+update match_point set points=points+2 where (team_id=b or team_id=c) and sport_id=o;
+update match_point set draw=draw+1 where (team_id=b or team_id=c) and sport_id=o;
+end if;
+update match_point set matches_played=matches_played+1 where (team_id=b or team_id=c) and sport_id=o;
+update match_point set winpc=matches_won*100/matches_played where (team_id=b or team_id=c) and sport_id=o;
+
+if o=1 then
+select score1,score3 into rb1,ob1 from score where team_id=b and match_id=a;
+select score1,score3 into ra1,oa1 from score where team_id=c and match_id=a;
+rb1:=rb1/ob1;
+ra1:=ra1/oa1;
+rb1:=rb1-ra1;
+ra1:=-rb1;
+if rb1>=ra1 then
+update match_point set nrr=nrr+rb1 where team_id=b and sport_id=o;
+update match_point set nrr=nrr+ra1 where team_id=c and sport_id=o;
+else
+update match_point set nrr=nrr+ra1 where team_id=b and sport_id=o;
+update match_point set nrr=nrr+rb1 where team_id=c and sport_id=o;
+end if;
+end if;
+end;
+
+-----------------------------
+------------------------------
+
+create or replace procedure insertCaptain(a in number,b in number,c in varchar,d in varchar,e in varchar,f in varchar, g in varchar)is
+
+begin 
+ insert into team values(a,b,c,d,e,f,g);
+ 
+end; 
+
+declare 
+
+a team_master.team_id%type; 
+b sport.sport_id%type; 
+c member_master.member_id%type ; 
+d member_master.member_id%type ; 
+e member_master.member_id%type ; 
+f member_master.member_id%type ; 
+g member_master.member_id%type ; 
+begin 
+a:=&team_id; 
+b:=&sport_id; 
+c:='&cap_id';
+d:='&fc_1';
+e:='&fc_2'; 
+f:='&vc_1';
+g:='&vc_2';
+
+insertCaptain(a,b,c,d,e,f,g); 
+end;
+
+-------------------------------
+----------------------------------
+
+create or replace procedure InsDept(a in number, b in varchar , c in number )is 
+
+begin 
+ insert into department values(a,b,c); 
+
+end;
+
+desc department; 
+declare 
+a department.dept_id%type; 
+b department.dept_name%type ; 
+c department.team_id%type; 
+
+begin 
+  a:=&deptId;
+  b:='&deptName'; 
+  c:=&teamId; 
+  InsDept(a,b,c); 
+end; 

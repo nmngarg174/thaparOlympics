@@ -1,0 +1,130 @@
+
+
+create or replace procedure insertMember(a in number,b in number,c in number,d in varchar,e in varchar,f in varchar,g in varchar,h in number,i in number,j in number,k number)is 
+
+begin 
+
+insert into member_master values (a,b,c,d,e,f,g,h,i); 
+
+insert into member_sport values(a,j); 
+insert into member_sport values(a,k); 
+
+end;  
+
+--show errors; 
+
+CREATE OR REPLACE PROCEDURE SP_CUSTOMER (
+p_name customer.Name%TYPE,
+p_address customer.Address%TYPE,
+p_contact customer.Contact%TYPE)
+IS
+BEGIN
+INSERT INTO customer (Name, Address, Contact)
+VALUES (p_name, p_address, p_contact);
+COMMIT;
+END;
+
+-- ------------
+
+
+create or replace procedure insertMember(a in varchar,b in number,c in number,d in varchar,e in varchar,f in varchar,g in varchar,h in number,i in number,j in number,k number)is 
+
+begin 
+
+insert into member_master values (a,b,c,d,e,f,g,h,i); 
+
+insert into member_sport values(a,j); 
+insert into member_sport values(a,k); 
+
+end;  
+
+
+insert into department values(); 
+declare
+a varchar(20);
+b number;
+c number;
+d varchar(20);
+e varchar(20);
+f varchar(20);
+g varchar(20);
+h number(20);
+i number(20);
+j varchar(20);
+k varchar(20);
+begin
+a:='&member_id'; 
+b:=&roll_no;
+c:=&faculty_number;
+d:='&First_Name';
+e:='&Last_name';
+f:='&Gender';
+g:='&email';
+h:=&phone_no;
+i:=&dept_id;
+j:='&sport1';
+k:='&sport2';
+insertMember(a,b,c,d,e,f,g,h,i,j,k); 
+end;
+
+
+
+select * from member_sport; 
+select * from member_master; 
+
+desc team; 
+
+create or replace procedure insertCaptain(a in number,b in number,c in varchar,d in varchar,e in varchar,f in varchar, g in varchar)is
+
+begin 
+ insert into team values(a,b,c,d,e,f,g);
+ 
+end; 
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+create sequence fixSeq increment by 1 start with 100; 
+
+create or replace trigger insertFixture before insert on fixture for each row 
+
+begin 
+ select fixSeq.nextval into :new.match_id from dual; 
+  
+end; 
+
+
+
+
+
+-------------------------------------------------------------------------------------------------
+
+desc member_master;
+
+
+create sequence insMem_master increment by 1 start with 1000; 
+
+create or replace trigger insMemMaster before insert on member_master for each row 
+
+declare 
+ f member_master.fname%type ; 
+ l member_master.lname%type ; 
+ g member_master.member_id%type ; 
+begin 
+ select substr(:new.fname,0,1) into f from member_master; 
+ select substr(:new.lname,0,1) into l from member_master;
+ select concat(f,l) into g from dual ;  
+ select g||insMem_master.nextval into :new.member_id from dual; 
+
+end; 
+ 
+----------------------------------------------------------------------------------------------
+
+
+ procedure score entry , athletics 
+ 
+ --------------------------------------------------------------------------------------------
+ 
+ 
